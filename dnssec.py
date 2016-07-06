@@ -938,8 +938,11 @@ class PrivateDNSKEY(dns.rdtypes.ANY.DNSKEY.DNSKEY):
             keydata[field] = base64.b64encode(f)
         dmp1 = Crypto.Util.number.long_to_bytes(key.d % (key.p - 1))
         keydata['dmp1'] = base64.b64encode(dmp1)
-        dmq1 = Crypto.Util.number.long_to_bytes(key.d % (key.p - 1))
+        dmq1 = Crypto.Util.number.long_to_bytes(key.d % (key.q - 1))
         keydata['dmq1'] = base64.b64encode(dmq1)
+        # key.u == inverse(p, q), but rfc3447 needs inverse(q, p)
+        u = Crypto.Util.number.long_to_bytes(inverse(key.q, key.p))
+        keydata['u'] = base64.b64encode(u)
 
         # Write to file
         if file:
